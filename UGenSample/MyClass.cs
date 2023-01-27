@@ -8,8 +8,8 @@ namespace UGenSample
     {
         [GetComponent]
         private IHaveData _test;
-        
-        [GetComponent(required: true)]
+
+        [GetComponent()]
         private Transform _value;
 
         [GetComponent(Where.Child)]

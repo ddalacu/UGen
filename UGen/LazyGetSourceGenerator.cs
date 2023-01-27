@@ -179,6 +179,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
                     cast));
 
             statementList.Add(expression);
+            statementList.Add(NullCheck(fieldSymbol));
         }
 
         return MethodDeclaration(
@@ -190,6 +191,38 @@ public class LazyGetSourceGenerator : ISourceGenerator
                     Token(SyntaxKind.ProtectedKeyword)))
             .WithBody(
                 Block(statementList));
+    }
+
+    private static IfStatementSyntax NullCheck(IFieldSymbol fieldSymbol)
+    {
+        var message = $"Could not get component of type {fieldSymbol.Type.ToDisplayString()}";
+        
+        return IfStatement(
+            BinaryExpression(
+                SyntaxKind.EqualsExpression,
+                IdentifierName(fieldSymbol.Name),
+                LiteralExpression(
+                    SyntaxKind.NullLiteralExpression)),
+            ExpressionStatement(
+                InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("UnityEngine"),
+                                IdentifierName("Debug")),
+                            IdentifierName("LogError")))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SeparatedList<ArgumentSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    Argument(
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(message))),
+                                    Token(SyntaxKind.CommaToken),
+                                    Argument(
+                                        ThisExpression())})))));
     }
 
     private static MemberDeclarationSyntax GenerateClass(string className, MemberDeclarationSyntax members)
@@ -212,7 +245,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
             member = NamespaceDeclaration(IdentifierName(ns)).AddMembers(member);
         }
 
-        
+
         member = member.NormalizeWhitespace();
 
         return CompilationUnit()
@@ -245,8 +278,10 @@ public class LazyGetSourceGenerator : ISourceGenerator
         var attribute =
             attributes.FirstOrDefault(ad => ad.AttributeClass.ToDisplayString() == Constants.AttributeName);
 
+
         if (attribute == null)
             return false;
+
 
         if (attribute.ConstructorArguments.Length > 0)
         {

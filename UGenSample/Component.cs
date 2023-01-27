@@ -20,4 +20,11 @@ namespace UnityEngine
     {
         public RequireComponent(Type type) => throw new NotImplementedException();
     }
+
+    public static class Debug
+    {
+        public static void Log(object message, object context = null) => throw new NotImplementedException();
+
+        public static void LogError(object message, object context = null) => throw new NotImplementedException();
+    }
 }

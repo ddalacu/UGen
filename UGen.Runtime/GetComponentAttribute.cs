@@ -16,7 +16,7 @@ namespace UGen.Runtime
 
         public Where Flags { get; }
 
-        public GetComponentAttribute(Where flags = Where.This, bool required = true)
+        public GetComponentAttribute(Where flags = Where.This, bool required = false)
         {
             Flags = flags;
             Required = required;
