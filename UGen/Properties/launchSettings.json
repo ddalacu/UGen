@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DebugComponent": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\UGenSample\\UGenSample.csproj"
+    }
+  }
+}
