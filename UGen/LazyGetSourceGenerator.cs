@@ -18,12 +18,12 @@ public class LazyGetSourceGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
-//#if DEBUG
-//        if (!Debugger.IsAttached)
-//        {
-//            Debugger.Launch();
-//        }
-//#endif
+        //#if DEBUG
+        //        if (!Debugger.IsAttached)
+        //        {
+        //            Debugger.Launch();
+        //        }
+        //#endif
 
         if (!(context.SyntaxContextReceiver is SyntaxReceiver receiver))
             return;
@@ -53,7 +53,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
                 var typeIdentifierName = IdentifierName(fieldType.ToDisplayString());
 
                 var identifierNameSyntax = IdentifierName("UnityEngine.RequireComponent");
-                
+
                 var attribute = Attribute(
                         identifierNameSyntax)
                     .WithArgumentList(
@@ -95,7 +95,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
             if (member.HasConstantValue == false)
                 continue;
 
-            values.Add(((int) member.ConstantValue!, member.Name));
+            values.Add(((int)member.ConstantValue!, member.Name));
         }
 
         return values;
@@ -114,7 +114,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
             if (member.HasConstantValue == false)
                 continue;
 
-            if ((int) member.ConstantValue == value)
+            if ((int)member.ConstantValue == value)
                 return member.Name;
         }
 
@@ -131,7 +131,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
 
         var firstArg = attributeData.ConstructorArguments[0];
 
-        var val = GetEnumName(firstArg.Type, (int) firstArg.Value);
+        var val = GetEnumName(firstArg.Type, (int)firstArg.Value);
 
         switch (val)
         {
@@ -194,6 +194,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
 
     private static MemberDeclarationSyntax GenerateClass(string className, MemberDeclarationSyntax members)
     {
+
         return ClassDeclaration(className)
             .WithModifiers(
                 TokenList(
@@ -206,11 +207,12 @@ public class LazyGetSourceGenerator : ISourceGenerator
 
     private static CompilationUnitSyntax GenerateCode(string ns, MemberDeclarationSyntax member)
     {
-        if (ns != null)
+        if (string.IsNullOrWhiteSpace(ns) == false)
         {
             member = NamespaceDeclaration(IdentifierName(ns)).AddMembers(member);
         }
 
+        
         member = member.NormalizeWhitespace();
 
         return CompilationUnit()
@@ -250,7 +252,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
         {
             var get = attribute.ConstructorArguments[1];
 
-            if ((bool) get.Value == true)
+            if ((bool)get.Value == true)
             {
                 return true;
             }
