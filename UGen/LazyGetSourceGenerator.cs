@@ -73,7 +73,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
             }
 
 
-            var unitSyntax = GenerateCode(key.ContainingNamespace?.Name, cls);
+            var unitSyntax = GenerateCode(key.ContainingNamespace?.ToDisplayString(), cls);
 
             var fileName = $"{key.Name}_InitializeComponents.g.cs";
             context.AddSource(fileName, unitSyntax.ToFullString());
