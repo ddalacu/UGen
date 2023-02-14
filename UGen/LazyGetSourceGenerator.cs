@@ -73,7 +73,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
             }
 
 
-            var unitSyntax = GenerateCode(key.ContainingNamespace?.ToDisplayString(), cls);
+            var unitSyntax = GenerateCode(key.ContainingNamespace, cls);
 
             var fileName = $"{key.Name}_InitializeComponents.g.cs";
             context.AddSource(fileName, unitSyntax.ToFullString());
@@ -95,7 +95,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
             if (member.HasConstantValue == false)
                 continue;
 
-            values.Add(((int)member.ConstantValue!, member.Name));
+            values.Add(((int) member.ConstantValue!, member.Name));
         }
 
         return values;
@@ -114,7 +114,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
             if (member.HasConstantValue == false)
                 continue;
 
-            if ((int)member.ConstantValue == value)
+            if ((int) member.ConstantValue == value)
                 return member.Name;
         }
 
@@ -131,7 +131,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
 
         var firstArg = attributeData.ConstructorArguments[0];
 
-        var val = GetEnumName(firstArg.Type, (int)firstArg.Value);
+        var val = GetEnumName(firstArg.Type, (int) firstArg.Value);
 
         switch (val)
         {
@@ -196,7 +196,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
     private static IfStatementSyntax NullCheck(IFieldSymbol fieldSymbol)
     {
         var message = $"Could not get component of type {fieldSymbol.Type.ToDisplayString()}";
-        
+
         return IfStatement(
             BinaryExpression(
                 SyntaxKind.EqualsExpression,
@@ -215,19 +215,20 @@ public class LazyGetSourceGenerator : ISourceGenerator
                     .WithArgumentList(
                         ArgumentList(
                             SeparatedList<ArgumentSyntax>(
-                                new SyntaxNodeOrToken[]{
+                                new SyntaxNodeOrToken[]
+                                {
                                     Argument(
                                         LiteralExpression(
                                             SyntaxKind.StringLiteralExpression,
                                             Literal(message))),
                                     Token(SyntaxKind.CommaToken),
                                     Argument(
-                                        ThisExpression())})))));
+                                        ThisExpression())
+                                })))));
     }
 
     private static MemberDeclarationSyntax GenerateClass(string className, MemberDeclarationSyntax members)
     {
-
         return ClassDeclaration(className)
             .WithModifiers(
                 TokenList(
@@ -238,11 +239,12 @@ public class LazyGetSourceGenerator : ISourceGenerator
             .WithMembers(SingletonList<MemberDeclarationSyntax>(members));
     }
 
-    private static CompilationUnitSyntax GenerateCode(string ns, MemberDeclarationSyntax member)
+    private static CompilationUnitSyntax GenerateCode(INamespaceSymbol ns, MemberDeclarationSyntax member)
     {
-        if (string.IsNullOrWhiteSpace(ns) == false)
+        if (ns != null && 
+            ns.IsGlobalNamespace == false)
         {
-            member = NamespaceDeclaration(IdentifierName(ns)).AddMembers(member);
+            member = NamespaceDeclaration(IdentifierName(ns.ToDisplayString())).AddMembers(member);
         }
 
 
@@ -287,7 +289,7 @@ public class LazyGetSourceGenerator : ISourceGenerator
         {
             var get = attribute.ConstructorArguments[1];
 
-            if ((bool)get.Value == true)
+            if ((bool) get.Value == true)
             {
                 return true;
             }
